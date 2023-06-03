@@ -1,0 +1,63 @@
+def is_valid_move(x, y):
+    if x < 0 or x >= rows or y < 0 or y >= cols:
+        return False
+    if flat_land[x][y] == '##' or assigned_spaces.get(flat_land[x][y]):
+        return False
+    return True
+
+def backtrack(index):
+    if index == len(events):
+        return True
+
+    event = events[index]
+    if event > 0:
+        for i in range(rows):
+            for j in range(cols):
+                if flat_land[i][j] == '..' and is_valid_move(i, j):
+                    flat_land[i][j] = '=='  # Land the airplane
+                    assigned_spaces[flat_land[i][j]] = True
+                    if backtrack(index + 1):
+                        return True
+                    flat_land[i][j] = '..'  # Undo the landing
+                    assigned_spaces[flat_land[i][j]] = False
+    else:
+        for i in range(rows):
+            for j in range(cols):
+                if flat_land[i][j] == '==' and is_valid_move(i, j):
+                    flat_land[i][j] = '..'  # Take off the airplane
+                    assigned_spaces[flat_land[i][j]] = None
+                    if backtrack(index + 1):
+                        return True
+                    flat_land[i][j] = '=='  # Undo the take off
+                    assigned_spaces[flat_land[i][j]] = True
+
+    return False
+
+case_number = 1
+while True:
+    nrc = input().split()
+    n = int(nrc[0])
+    if n == 0:
+        break
+
+    rows = int(nrc[1])
+    cols = int(nrc[2])
+
+    flat_land = [input().split() for _ in range(rows)]
+    events = list(map(int, input().split()))
+
+    assigned_spaces = {}
+    for event in events:
+        if event > 0:
+            assigned_spaces[str(event)] = None
+
+    if not backtrack(0):
+        print("Case {}: No".format(case_number))
+    else:
+        print("Case {}: Yes".format(case_number), end=" ")
+        for event in events:
+            if event > 0:
+                print("{:02d}".format(event), end=" ")
+        print()
+
+    case_number += 1
