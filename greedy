@@ -1,0 +1,58 @@
+def is_valid_move(x, y):
+    if x < 0 or x >= rows or y < 0 or y >= cols:
+        return False
+    if flat_land[x][y] == '##' or (x, y) in assigned_spaces:
+        return False
+    return True
+
+def assign_spaces():
+    for event in events:
+        if event > 0:
+            assigned = False
+            for i in range(rows):
+                for j in range(cols):
+                    if flat_land[i][j] == '..' and is_valid_move(i, j):
+                        flat_land[i][j] = '=='  # Land the airplane
+                        assigned_spaces.add((i, j))
+                        assigned = True
+                        break
+                if assigned:
+                    break
+        else:
+            for i in range(rows):
+                for j in range(cols):
+                    if flat_land[i][j] == '==' and is_valid_move(i, j):
+                        flat_land[i][j] = '..'  # Take off the airplane
+                        if (i, j) in assigned_spaces:
+                            assigned_spaces.remove((i, j))
+                        break
+
+case_number = 1
+while True:
+    nrc = input().split()
+    n = int(nrc[0])
+    if n == 0:
+        break
+
+    rows = int(nrc[1])
+    cols = int(nrc[2])
+
+    flat_land = [input().split() for _ in range(rows)]
+    events = list(map(int, input().split()))
+
+    assigned_spaces = set()
+
+    assign_spaces()
+
+    valid_assignment = all(flat_land[i][j] == '..' for i in range(rows) for j in range(cols))
+
+    if valid_assignment:
+        print("Case {}: Yes".format(case_number), end=" ")
+        for event in events:
+            if event > 0:
+                print("{:02d}".format(event), end=" ")
+        print()
+    else:
+        print("Case {}: No".format(case_number))
+
+    case_number += 1
