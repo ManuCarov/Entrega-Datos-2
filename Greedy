@@ -1,0 +1,58 @@
+def is_valid_move(x, y):
+    if x < 0 or x >= rows or y < 0 or y >= cols:
+        return False
+    if flat_land[x][y] == '##' or assigned_spaces.get(flat_land[x][y]):
+        return False
+    return True
+
+def greedy_assignment():
+    assigned_parking_spaces = {}  # Diccionario para almacenar los espacios de estacionamiento asignados
+    parking_spaces = []  # Lista para almacenar los espacios de estacionamiento disponibles
+
+    for i in range(rows):
+        for j in range(cols):
+            if flat_land[i][j].isdigit():
+                parking_spaces.append(flat_land[i][j])
+
+    events.sort(reverse=True)  # Ordenar los eventos de forma descendente
+
+    for event in events:
+        if event > 0:
+            if len(parking_spaces) > 0:
+                assigned_parking_spaces[event] = parking_spaces.pop(0)
+            else:
+                return False
+        else:
+            if assigned_parking_spaces.get(-event):
+                parking_spaces.append(assigned_parking_spaces[-event])
+                assigned_parking_spaces.pop(-event)
+            else:
+                return False
+
+    return assigned_parking_spaces
+
+case_number = 1
+while True:
+    nrc = input().split()
+    n = int(nrc[0])
+    if n == 0:
+        break
+
+    rows = int(nrc[1])
+    cols = int(nrc[2])
+
+    flat_land = [input().split() for _ in range(rows)]
+    events = list(map(int, input().split()))
+
+    assigned_spaces = greedy_assignment()
+
+    if assigned_spaces:
+        print("Case {}: Yes".format(case_number), end=" ")
+        for event in events:
+            if event > 0:
+                print("{:02d}".format(assigned_spaces[event]), end=" ")
+        print()
+    else:
+        print("Case {}: No".format(case_number))
+
+    case_number += 1
